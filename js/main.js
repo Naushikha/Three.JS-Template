@@ -1,4 +1,7 @@
-const dataPath = "./data/";
+import * as THREE from "./lib/three.module.js";
+import Stats from "./lib/stats.module.js";
+import { Scene1 } from "./scene1.js";
+
 const progress = document.getElementById("progress");
 const progressBar = document.getElementById("progress-bar");
 const overlay = document.getElementById("overlay");
@@ -18,61 +21,22 @@ manager.onLoad = function () {
   overlay.style.visibility = "visible";
   startButton.style.visibility = "visible";
   startButton.addEventListener("click", () => {
-    renderLoop();
+    scene1.render();
     startButton.style.visibility = "hidden";
     overlay.style.visibility = "hidden";
   });
 };
 
-// Setting up the scene, camera, renderer
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+// Setup the renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Handle window resizing
-window.addEventListener("resize", onWindowResize, false);
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
+// Show FPS stats
+const stats = new Stats();
+stats.domElement.style.position = "absolute";
+stats.domElement.style.top = "0px";
+document.body.appendChild(stats.domElement);
 
-// Skybox
-// http://wwwtyro.github.io/space-3d
-
-const loader = new THREE.CubeTextureLoader(manager);
-loader.setPath(dataPath);
-
-const skyboxTextures = loader.load([
-  "txt/skybox_front.png",
-  "txt/skybox_back.png",
-  "txt/skybox_top.png",
-  "txt/skybox_bottom.png",
-  "txt/skybox_left.png",
-  "txt/skybox_right.png",
-]);
-scene.background = skyboxTextures;
-
-const axesHelper = new THREE.AxesHelper(5);
-scene.add(axesHelper);
-
-const controls = new THREE.OrbitControls(camera, renderer.domElement); // CONTROLS
-camera.position.set(10, 20, 30);
-controls.update();
-
-const renderLoop = function () {
-  requestAnimationFrame(renderLoop);
-
-  // TWEEN.update();
-
-  controls.update(); // CONTROLS
-
-  renderer.render(scene, camera);
-};
+// Setup a scene
+const scene1 = new Scene1(renderer, manager, stats);
